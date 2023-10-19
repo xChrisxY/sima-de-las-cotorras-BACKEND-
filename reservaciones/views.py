@@ -5,8 +5,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .models import Aventura, Cabaña, Pago, ReservaCabaña, ReservaAventura
 from usuarios.models import Usuarios
+from datetime import datetime
 import json
-from django.core.exceptions import ObjectDoesNotExist
 
 # Create your views here.
 class ReservacionesAventuras(View):
@@ -54,7 +54,39 @@ class ReservacionesAventuras(View):
             return JsonResponse(datos)
 
       def post(self, request):
-            pass
+            
+            #Creando el pago del usuario
+            
+            jasondata = json.loads(request.body)
+            
+            # Obtenemos el id del pago para poder instanciarlo
+            pago = Pago.objects.create(
+                  
+                  monto = jasondata['pago']['monto'],
+                  numero_transaccion = jasondata['pago']['numero_transaccion']
+                  
+            )
+            
+            pago_id = pago.id
+            
+            #Creando el registro de la reservación
+            aventura_a_reservar = Aventura.objects.get(id = jasondata['aventura'])
+            usuario = Usuarios.objects.get(id = jasondata['usuario'])
+            pago_del_usuario = Pago.objects.get(id = pago_id)
+            fecha_de_reservacion = datetime.strptime(jasondata['fecha_reservacion'],"%Y-%M-%d").strftime('%Y-%m-%d')
+            
+            ReservaAventura.objects.create(
+                  
+                  fecha = fecha_de_reservacion,
+                  aventura = aventura_a_reservar,
+                  usuario = usuario,      
+                  pago = pago_del_usuario            
+                  
+            )
+            
+            datos = {'Message' : 'Success'}
+            
+            return JsonResponse(datos)
 
       def put(self, request):
             pass
