@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import cloudinary
-from decouple import config 
+from decouple import config
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,13 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'administrador',
     'usuarios',
-    'reservaciones'
+    'reservaciones',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -80,13 +82,13 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-      'ENGINE': 'djongo',
-      'CLIENT': {
-          'host': config('HOST'),
-          'port': int(config('PORT')),
-      },
-      'NAME': 'sima_cotorras',
-  }
+        'ENGINE': 'djongo',
+        'CLIENT': {
+            'host': config('HOST'),
+            'port': int(config('PORT')),
+        },
+        'NAME': 'sima_cotorras',
+    }
 }
 
 
@@ -131,13 +133,26 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#congifuración de rutas para las imagenes locales
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+
+# cors authorization
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+# congifuración de rutas para las imagenes locales
 # MEDIA_ROOT = BASE_DIR / 'files'
 # MEDIA_URL = '/media-files/'
 
-#congifuración de rutas para las imagenes en cloudinary          
-cloudinary.config( 
-  cloud_name = config('CLOUD_NAME'), 
-  api_key = config('API_KEY'), 
-  api_secret = config('API_SECRET') 
+# congifuración de rutas para las imagenes en cloudinary
+cloudinary.config(
+    cloud_name=config('CLOUD_NAME'),
+    api_key=config('API_KEY'),
+    api_secret=config('API_SECRET')
 )
+
+
+STRIPE_PUBLIC_KEY = "pk_test_51O3jBUB4lOKww4uzMOF61fXd7pHxq0FGsodZBo3ue7fR60XX1JFdUrjcMgS4M0IaQGbFYQXjPAd1xMSdcNbncvyF00xpLm1K2Y"
+STRIPE_SECRET_KEY = "sk_test_51O3jBUB4lOKww4uzeFgFS8eZjHSxhIGUEk3M2k2AJ3f7jrwJT7ZRMjDB1FeKCwXILCXearLJE3kRFndfhbd57ZnG00AxJjIfQS"
+STRIPE_WEBHOOK_SECRET = ""

@@ -1,12 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.http import JsonResponse
 from .models import Aventura, Cabaña, Pago, ReservaCabaña, ReservaAventura
 from usuarios.models import Usuarios
 from datetime import datetime
 import json
+import stripe
+from django.conf import settings
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # Create your views here.
 class ReservacionesAventuras(View):
@@ -88,9 +93,86 @@ class ReservacionesAventuras(View):
             
             return JsonResponse(datos)
 
-      def put(self, request):
+class ReservacionesCabañas(View):
+
+      @method_decorator(csrf_exempt)
+      def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)      
+  
+      def get(self, request):
+            pass
+      
+      
+      def post(self, request):
             pass
 
-      def delete(self, request):
-            pass
 
+class CreatecCheckoutSessionView(View):
+      
+      @method_decorator(csrf_exempt)
+      def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+      
+      def post(self, request):
+            
+            YOUR_DOMAIN = "http://127.0.0.1:5173"
+            
+            try:
+                  checkout_session = stripe.checkout.Session.create(
+                  line_items=[
+                  {
+                          # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                        'price': 'price_1O3lzsB4lOKww4uzEGAjK0Do',
+                        'quantity': 1,
+                  },
+                  ],
+                  mode='payment',
+                        success_url=YOUR_DOMAIN + '?success=true',
+                        cancel_url=YOUR_DOMAIN + '?canceled=true',
+                  )
+                  
+                  data = {'id' : checkout_session.id}
+                  
+                  return redirect(checkout_session.url)
+            
+            except Exception as e:
+                  
+                  data = {'error' : 'Something went wrong when creating stripe checkout session'}
+                  
+                  return JsonResponse(data, safe=False)
+
+
+class AventurasView(View):
+      
+      @method_decorator(csrf_exempt)
+      def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+  
+      def get(self, request):
+            
+            try:
+                  aventuras = list(Aventura.objects.values())
+                  lista_de_aventuras = []
+            
+                  for aventura in aventuras:
+                        
+                        informacion_aventura = {
+                              
+                              "id_aventura" : aventura['id'],
+                              "nombre" : aventura['nombre'],
+                              "descripcion" : aventura['descripcion'],
+                              "precio" : "{:.2f}".format(aventura['precio'].to_decimal())
+                              
+                        }     
+                  
+                        lista_de_aventuras.append(informacion_aventura)
+            
+                  data = {'message': 'Success', 'aventuras': lista_de_aventuras}
+            
+                  return JsonResponse(data)
+                  
+            except Exception as e:
+                  
+                  data = {'message' : 'Fatal error'}
+                  
+                  return JsonResponse(data)

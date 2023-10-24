@@ -3,9 +3,11 @@ from .models import Usuarios, Comments
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from django.contrib.auth import login
 import json
-import cloudinary.uploader
+import cloudinary
+
 
 # Create your views here.
 class UserView(View):
@@ -61,21 +63,67 @@ class UserView(View):
 
             return JsonResponse(datos)
 
+      
       def post(self, request):
           
         jasondata = json.loads(request.body)
-    
-        Usuarios.objects.create(
-            name = jasondata['name'], 
-            last_name = jasondata['last_name'], 
-            phone = jasondata['phone'], 
-            email = jasondata['email'],
-            username = jasondata['username'],
-            password = jasondata['password'],
-            photo = jasondata['photo']  
-        )
         
-        datos = {'message' :  'Success'}
+        #Método de autenticación
+        if len(jasondata) == 2:
+          
+          try:
+
+            if 'username' in jasondata and 'password' in jasondata:
+              
+              #Traemos la lista de los usuarios
+              usuarios = list(Usuarios.objects.values())
+              user = None
+              
+              for usuario in usuarios:
+                
+                if (usuario['username'] == jasondata['username'] and usuario['password'] == jasondata['password']):
+                  user = usuario
+                  print("Encontrado")
+                  break  
+              
+              if user is not None:
+                
+                datos = {'message': "El usuario se ha autenticado correctamente"}
+                
+                #login(request, user)                
+                request.session['user_id'] = user['id']
+                
+                return JsonResponse(datos, status = 200)
+                
+              else:
+                
+                datos = {'message': "El usuario NO se ha autenticado correctamente"}
+                
+                return JsonResponse(datos, status = 401)
+                
+            else:
+              
+              return HttpResponse('Faltan datos de autenticación', status = 400)
+                          
+            
+          except json.JSONDecodeError:
+            
+            return HttpResponse('Datos JSON inválidos', status = 400)
+            
+        #Método para crear un nuevo usuario
+        else:
+    
+          Usuarios.objects.create(
+              name = jasondata['name'], 
+              last_name = jasondata['last_name'], 
+              phone = jasondata['phone'], 
+              email = jasondata['email'],
+              username = jasondata['username'],
+              password = jasondata['password'],
+              photo = jasondata['photo']  
+          )
+          
+          datos = {'message' :  'Success'}
 
         return JsonResponse(datos)
 
@@ -140,6 +188,7 @@ class CommentaryUserView(View):
         datos = {'message' : 'Comments not found :('}
 
       return JsonResponse(datos)
+    
     
     def post(self, request):
        

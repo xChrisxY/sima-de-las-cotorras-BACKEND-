@@ -30,7 +30,8 @@ class Pago(models.Model):
 
 class ReservaCabaña(models.Model):
 
-      dias_reservacion = models.IntegerField()
+      fecha_de_reservacion = models.DateField(blank=False, null=False)
+      fecha_de_salida = models.DateField(blank=False, null=False)
       usuario = models.ForeignKey(Usuarios, on_delete=models.CASCADE, related_name="reserva_de_cabaña")
       cabaña = models.ForeignKey(Cabaña, on_delete=models.CASCADE, related_name="reserva_de_cabaña")
       pago = models.ForeignKey(Pago, on_delete=models.CASCADE, related_name="pago_de_cabaña")
