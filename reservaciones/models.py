@@ -4,8 +4,9 @@ from usuarios.models import Usuarios
 # Create your models here.
 class Cabaña(models.Model):
 
+      nombre = models.CharField(max_length=200)
       descripcion = models.TextField(max_length=300)
-      precio = models.DecimalField(max_digits=5, decimal_places=2)
+      precio = models.DecimalField(max_digits=6, decimal_places=2)
 
       def __str__(self):
             return f"{self.descripcion} -- ${self.precio}"

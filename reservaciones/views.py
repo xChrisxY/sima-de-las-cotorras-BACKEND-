@@ -158,7 +158,7 @@ class AventurasView(View):
                         
                         informacion_aventura = {
                               
-                              "id_aventura" : aventura['id'],
+                              "id" : aventura['id'],
                               "nombre" : aventura['nombre'],
                               "descripcion" : aventura['descripcion'],
                               "precio" : "{:.2f}".format(aventura['precio'].to_decimal())
@@ -176,3 +176,39 @@ class AventurasView(View):
                   data = {'message' : 'Fatal error'}
                   
                   return JsonResponse(data)
+            
+            
+class CabañasView(View):
+      
+      @method_decorator(csrf_exempt)
+      def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+  
+      def get(self, request):
+            
+            try:
+            
+                  cabañas = list(Cabaña.objects.values())
+                  
+                  lista_de_cabañas = []
+                  
+                  for i in cabañas:
+                        
+                        informacion_cabaña = {
+                              
+                              'id' : i['id'],
+                              'nombre' : i['nombre'],
+                              'descripcion' : i['descripcion'],
+                              'precio' : "{:.2f}".format(i['precio'].to_decimal())                              
+                              
+                        }
+                        
+                        lista_de_cabañas.append(informacion_cabaña)
+            
+                  datos = {'message' : lista_de_cabañas}
+                  
+                  return JsonResponse(datos)
+            
+            except Exception as e:
+                  
+                  data = {'message' : e}
