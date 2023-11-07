@@ -12,7 +12,6 @@ from django.conf import settings
 from datetime import datetime, timedelta
 from decouple import config
 
-
 # Create your views here.
 class UserView(View):
 
@@ -22,14 +21,14 @@ class UserView(View):
 
     def get(self, request, id=0):
 
-        # Comprobamos si nos están pasando un parámetro        
-        if id > 0:            
-            
+        # Comprobamos si nos están pasando un parámetro
+        if id > 0:
+
             print(request.session.get('user_id', None))
 
-            if request.session.get('user_id', None) is not None:                          
-                
-                user_id = request.session.get('user_id', None)        
+            if request.session.get('user_id', None) is not None:
+
+                user_id = request.session.get('user_id', None)
 
                 usuarios = list(Usuarios.objects.filter(id=user_id).values())
 
@@ -48,7 +47,8 @@ class UserView(View):
 
                     }
 
-                    datos = {'message': 'Success', 'Usuario': informacion_usuario}
+                    datos = {'message': 'Success',
+                             'Usuario': informacion_usuario}
 
                 else:
 
@@ -91,7 +91,7 @@ class UserView(View):
 
     def post(self, request):
 
-        jasondata = json.loads(request.body)        
+        jasondata = json.loads(request.body)
 
         # ========= Método de autenticación =========
         if len(jasondata) == 2:
@@ -107,29 +107,32 @@ class UserView(View):
                     for usuario in usuarios:
 
                         if (usuario['username'] == jasondata['username'] and usuario['password'] == jasondata['password']):
-                            user = usuario                            
+                            user = usuario
                             break
 
-                    if user is not None:                        
-                        
+                    if user is not None:
+
                         payload = {
-                            
-                            'username' : usuario['username'],
-                            'id' : usuario['id'],                            
-                            'exp' : datetime.utcnow() + timedelta(days=1)   
+
+                            'username': usuario['username'],
+                            'id': usuario['id'],
+                            'exp': datetime.utcnow() + timedelta(days=1)
                         }
-                        
+
                         secret_key = config('JWT_SECRET_KEY')
-                        
-                        token = jwt.encode(payload, secret_key, algorithm="HS256")
-                        
-                        datos = {'message': "El usuario se ha autenticado correctamente", "token" : token}                                                                                                   
-            
+
+                        token = jwt.encode(
+                            payload, secret_key, algorithm="HS256")
+
+                        datos = {
+                            'message': "El usuario se ha autenticado correctamente", "token": token}
+
                         return JsonResponse(datos, status=200)
 
                     else:
 
-                        datos = {'message': "El usuario NO se ha autenticado correctamente"}
+                        datos = {
+                            'message': "El usuario NO se ha autenticado correctamente"}
 
                         return JsonResponse(datos, status=401)
 
@@ -184,6 +187,41 @@ class UserView(View):
         pass
 
 
+# ====== Este método es para verificar la autenticación del usuario =====
+def verificarSesion(request):
+
+    token = request.META.get('HTTP_AUTHORIZATION')
+    secret_key = config('JWT_SECRET_KEY')
+
+    if token is None:
+
+        return JsonResponse({'message': 'Token JWT faltante'}, status=401)
+
+    try:
+
+        payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+
+        usuario = Usuarios.objects.get(id=payload['id'])
+        
+        informacion_usuario = {
+            
+            "id" : usuario.id,
+            "username" : usuario.username,
+            "email" : usuario.email,
+            "phone" : usuario.phone,
+            "photo" : str(usuario.photo.url)
+                        
+        }
+
+        return JsonResponse({'message': 'El usuario está autenticado correctamente', 'usuario' : informacion_usuario}, status=200)
+
+    except (jwt.ExpiredSignatureError, jwt.DecodeError):
+
+        print("Ha ocurrido un error al momento de decodificar el token")
+
+        return JsonResponse({'message': 'Token JWT inválido o expirado'}, status=201)
+
+
 class CommentaryUserView(View):
 
     @method_decorator(csrf_exempt)
@@ -194,8 +232,8 @@ class CommentaryUserView(View):
     def get(self, request, id=0):
 
         comments = list(Comments.objects.values())
-        
-        comentariosFiltro = []        
+
+        comentariosFiltro = []
 
         if len(comments) > 0:
 
@@ -213,45 +251,43 @@ class CommentaryUserView(View):
                 comentariosFiltro.append(diccionario)
 
             datos = {'message': 'Success', 'comments': comentariosFiltro}
-            
-            
 
         else:
 
-            datos = {'message': 'Comments not found :('}                                
+            datos = {'message': 'Comments not found :('}
 
         return JsonResponse(datos)
 
+    # Publicar un nuevo comentario
     def post(self, request):
-        
+
         jsondata = json.loads(request.body)
-        
+
         token = request.META.get('HTTP_AUTHORIZATION')
         secret_key = config('JWT_SECRET_KEY')
-        
+
         print(f"El token es: {token}")
-        
+
         if token is None:
-                        
-            return JsonResponse({'message' : 'Token JWT faltante'}, status = 401)
-        
-        try:            
-            
-            payload = jwt.decode(token, secret_key, algorithms=['HS256'])   
-                     
-            usuario = Usuarios.objects.get(id=payload['id'])            
-            
-            #Creamos el comentario y lo almacenamos en la base de datos
+
+            return JsonResponse({'message': 'Token JWT faltante'}, status=401)
+
+        try:
+
+            payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+
+            usuario = Usuarios.objects.get(id=payload['id'])
+
+            # Creamos el comentario y lo almacenamos en la base de datos
             Comments.objects.create(
-                comment = jsondata['comment'],
-                usuario = usuario
+                comment=jsondata['comment'],
+                usuario=usuario
             )
-                    
-            return JsonResponse({'message' : 'El comentario se ha publicado correctamente'}, status=200)
-            
+
+            return JsonResponse({'message': 'El comentario se ha publicado correctamente'}, status=200)
+
         except (jwt.ExpiredSignatureError, jwt.DecodeError):
-            
+
             print("Ha ocurrido un error al momento de decodificar el token")
-            
-            return JsonResponse({'message' : 'Token JWT inválido o expirado'}, status = 201)
-                
+
+            return JsonResponse({'message': 'Token JWT inválido o expirado'}, status=201)
