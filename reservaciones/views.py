@@ -14,6 +14,8 @@ from django.conf import settings
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # Create your views here.
+
+
 class ReservacionesAventuras(View):
 
     @method_decorator(csrf_exempt)
@@ -21,39 +23,39 @@ class ReservacionesAventuras(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id=0):
-                
-        print("Estamos pasando por aquí")                
+
+        print("Estamos pasando por aquí")
       # ==== Obteniendo todas las resrevaciones del usuario === #
         if id > 0:
 
             reservaciones_aventura = list(ReservaAventura.objects.values())
             reservaciones_del_usuario = []
-            
+
             for reservacion in reservaciones_aventura:
-                  
-                  if (id == reservacion['usuario_id']):
-                        
-                        aventura_id = reservacion['aventura_id']
-                        pago_id = reservacion['pago_id']
-                        
-                        aventura = Aventura.objects.get(id=aventura_id)                        
-                        pago = Pago.objects.get(id=pago_id)
-                        usuario = Usuarios.objects.get(id=id)
-                        
-                        informacion_de_reservacion = {
-                              
-                              "nombre_usuario": usuario.name,
-                              "apellido_usuario": usuario.last_name,
-                              "nombre_aventura": aventura.nombre,     
-                              "precio_aventura" : "{:.2f}".format(aventura.precio.to_decimal()),                                                       
-                              "fecha_de_pago": pago.fecha.strftime('%Y-%m-%d'),
-                              "fecha_aventura" : reservacion['fecha']
-                              
-                        }
-                        
-                        reservaciones_del_usuario.append(informacion_de_reservacion)
-                        
-            
+
+                if (id == reservacion['usuario_id']):
+
+                    aventura_id = reservacion['aventura_id']
+                    pago_id = reservacion['pago_id']
+
+                    aventura = Aventura.objects.get(id=aventura_id)
+                    pago = Pago.objects.get(id=pago_id)
+                    usuario = Usuarios.objects.get(id=id)
+
+                    informacion_de_reservacion = {
+
+                        "nombre_usuario": usuario.name,
+                        "apellido_usuario": usuario.last_name,
+                        "nombre_aventura": aventura.nombre,
+                        "precio_aventura": "{:.2f}".format(aventura.precio.to_decimal()),
+                        "fecha_de_pago": pago.fecha.strftime('%Y-%m-%d'),
+                        "fecha_aventura": reservacion['fecha']
+
+                    }
+
+                    reservaciones_del_usuario.append(
+                        informacion_de_reservacion)
+
             return JsonResponse({'message': 'Success', 'reservaciones': reservaciones_del_usuario}, status=200)
 
         else:
@@ -114,7 +116,8 @@ class ReservacionesAventuras(View):
         aventura_a_reservar = Aventura.objects.get(id=jasondata['aventura'])
         usuario = Usuarios.objects.get(id=jasondata['usuario'])
         pago_del_usuario = Pago.objects.get(id=pago_id)
-        fecha_de_reservacion = datetime.strptime(jasondata['fecha_reservacion'], "%Y-%M-%d").strftime('%Y-%m-%d')
+        fecha_de_reservacion = datetime.strptime(
+            jasondata['fecha_reservacion'], "%Y-%M-%d").strftime('%Y-%m-%d')
 
         ReservaAventura.objects.create(
 
@@ -138,36 +141,36 @@ class ReservacionesCabañas(View):
 
     def get(self, request, id=0):
 
-      #Obtenemos las reservaciones del usaurio
+      # Obtenemos las reservaciones del usaurio
         if id > 0:
 
             reservaciones_cabaña = list(ReservaCabaña.objects.values())
             reservaciones_del_usuario = []
-            
-            for reservacion in reservaciones_cabaña:
-                  
-                  if (id == reservacion['usuario_id']):                                                
-                        
-                        cabaña_id = reservacion['cabaña_id']
-                        pago_id = reservacion['pago_id']
-                        
-                        usuario = Usuarios.objects.get(id = id)
-                        cabaña = Cabaña.objects.get(id = cabaña_id)
-                        pago = Pago.objects.get(id = pago_id)
-                        
-                        informacion_reservacion = {
-                        
-                              "nombre_de_usuario" : usuario.name,
-                              "apellido_de_usuario" : usuario.last_name,
-                              "nombre_cabaña" : cabaña.nombre,
-                              "fecha_de_pago" : pago.fecha.strftime('%Y-%m-%d'),
-                              "fecha_de_estancia" : f"{reservacion['fecha_de_reservacion'].strftime('%Y-%m-%d')} - {reservacion['fecha_de_salida'].strftime('%Y-%m-%d')}"
-                        
-                        }
-                        
-                        reservaciones_del_usuario.append(informacion_reservacion)
 
-            return JsonResponse({'message': 'Success', 'reservaciones' : reservaciones_del_usuario}, status = 200)
+            for reservacion in reservaciones_cabaña:
+
+                if (id == reservacion['usuario_id']):
+
+                    cabaña_id = reservacion['cabaña_id']
+                    pago_id = reservacion['pago_id']
+
+                    usuario = Usuarios.objects.get(id=id)
+                    cabaña = Cabaña.objects.get(id=cabaña_id)
+                    pago = Pago.objects.get(id=pago_id)
+
+                    informacion_reservacion = {
+
+                        "nombre_de_usuario": usuario.name,
+                        "apellido_de_usuario": usuario.last_name,
+                        "nombre_cabaña": cabaña.nombre,
+                        "fecha_de_pago": pago.fecha.strftime('%Y-%m-%d'),
+                        "fecha_de_estancia": f"{reservacion['fecha_de_reservacion'].strftime('%Y-%m-%d')} - {reservacion['fecha_de_salida'].strftime('%Y-%m-%d')}",
+                        "precio_cabaña" : "{:.2f}".format(pago.monto.to_decimal())                        
+                    }
+
+                    reservaciones_del_usuario.append(informacion_reservacion)
+
+            return JsonResponse({'message': 'Success', 'reservaciones': reservaciones_del_usuario}, status=200)
 
         else:
 
@@ -176,29 +179,29 @@ class ReservacionesCabañas(View):
 
             for reservacion in reservaciones_cabaña:
 
-                  usuario_id = reservacion['usuario_id']
-                  cabaña_id = reservacion['cabaña_id']
-                  pago_id = reservacion['pago_id']
-                  
-                  usuario = Usuarios.objects.get(id = usuario_id)
-                  cabaña = Cabaña.objects.get(id = cabaña_id)
-                  pago = Pago.objects.get(id = pago_id)
-                  
-                  informacion_reservacion = {
-                        
-                        "nombre_de_usuario" : usuario.name,
-                        "apellido_de_usuario" : usuario.last_name,
-                        "nombre_cabaña" : cabaña.nombre,
-                        "fecha_de_pago" : pago.fecha.strftime('%Y-%m-%d')
-                        
-                  }
-                  
-                  usuarios_con_reservacion.append(informacion_reservacion)
+                usuario_id = reservacion['usuario_id']
+                cabaña_id = reservacion['cabaña_id']
+                pago_id = reservacion['pago_id']
 
-            return JsonResponse({'message': 'Success', 'reservaciones' : usuarios_con_reservacion})
+                usuario = Usuarios.objects.get(id=usuario_id)
+                cabaña = Cabaña.objects.get(id=cabaña_id)
+                pago = Pago.objects.get(id=pago_id)
 
+                informacion_reservacion = {
+
+                    "nombre_de_usuario": usuario.name,
+                    "apellido_de_usuario": usuario.last_name,
+                    "nombre_cabaña": cabaña.nombre,
+                    "fecha_de_pago": pago.fecha.strftime('%Y-%m-%d')
+
+                }
+
+                usuarios_con_reservacion.append(informacion_reservacion)
+
+            return JsonResponse({'message': 'Success', 'reservaciones': usuarios_con_reservacion})
 
       # ====== CREAMOS LA RESERVACIÓN DE LA CABAÑA ====== #
+
     def post(self, request):
 
         # Creando el pago del usuario
@@ -220,8 +223,9 @@ class ReservacionesCabañas(View):
         cabaña_a_reservar = Cabaña.objects.get(id=jsondata['cabaña'])
         pago = Pago.objects.get(id=pago_id)
         fecha_de_reservacion = datetime.strptime(
-        jsondata['fecha_de_reservacion'], "%Y-%M-%d").strftime('%Y-%m-%d')
-        fecha_de_salida = datetime.strptime(jsondata['fecha_de_salida'], "%Y-%M-%d").strftime('%Y-%m-%d')
+            jsondata['fecha_de_reservacion'], "%Y-%M-%d").strftime('%Y-%m-%d')
+        fecha_de_salida = datetime.strptime(
+            jsondata['fecha_de_salida'], "%Y-%M-%d").strftime('%Y-%m-%d')
 
         # Creamos la reservación
         ReservaCabaña.objects.create(
@@ -243,34 +247,47 @@ class CreatecCheckoutSessionView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def post(self, request):
+    def post(self, request, id):             
+        
+        # Busquemos para ver si es una cabaña
+        cabaña = Cabaña.objects.get(id = id)
+        price_id = cabaña.price_id
+        print(price_id)
+        
+        if price_id is None:
+            
+            aventura = Aventura.objects.get(id = id)
+            price_id = aventura.price_id
 
-        YOUR_DOMAIN = "http://127.0.0.1:5173"
-
+        YOUR_DOMAIN = "http://127.0.0.1:5173"    
+        
         try:
             checkout_session = stripe.checkout.Session.create(
                 line_items=[
                     {
                         # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                        'price': 'price_1O3lzsB4lOKww4uzEGAjK0Do',
-                        'quantity': 1,
+                        'price': price_id,
+                        'quantity' : 1                        
                     },
                 ],
+                payment_method_types = ["card"],
                 mode='payment',
                 success_url=YOUR_DOMAIN + '?success=true',
                 cancel_url=YOUR_DOMAIN + '?canceled=true',
             )
 
-            data = {'id': checkout_session.id}
+            data = {'id': checkout_session.id, "session" : checkout_session.url}
 
-            return redirect(checkout_session.url)
+            return JsonResponse(data)
 
         except Exception as e:
 
-            data = {
-                'error': 'Something went wrong when creating stripe checkout session'}
+            error_info = {
+                'error_type': 'InvalidRequestError',
+                'error_message': str(e),
+            }
 
-            return JsonResponse(data, safe=False)
+            return JsonResponse(error_info, safe=False)
 
 
 class AventurasView(View):

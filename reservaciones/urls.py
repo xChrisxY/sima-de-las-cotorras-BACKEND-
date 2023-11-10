@@ -4,7 +4,7 @@ from .views import ReservacionesAventuras, CreatecCheckoutSessionView, Aventuras
 urlpatterns = [
     
       path('reservaciones-aventura/', ReservacionesAventuras.as_view(), name="get_reservations"),
-      path('create-checkout-session/', CreatecCheckoutSessionView.as_view(), name="create-checkout-session"),
+      path('create-checkout-session/<int:id>/', CreatecCheckoutSessionView.as_view(), name="create-checkout-session"),
       path('aventuras/', AventurasView.as_view(), name="Aventuras"),
       path('cabañas/', CabañasView.as_view(), name="get_cabañas"),
       path('reservaciones-aventura/<int:id>/', ReservacionesAventuras.as_view(), name="view_activity_user"),

@@ -8,6 +8,7 @@ class Usuarios(models.Model):
       last_name = models.CharField(max_length=200)
       phone = models.CharField(max_length=10)
       email = models.EmailField(max_length=50)
+      age = models.IntegerField(default=0)
       username = models.CharField(max_length=15)      
       password = models.CharField(max_length=10)
       photo = CloudinaryField("Images", folder="proyecto", blank=True)

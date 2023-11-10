@@ -7,6 +7,7 @@ class Cabaña(models.Model):
       nombre = models.CharField(max_length=200)
       descripcion = models.TextField(max_length=300)
       precio = models.DecimalField(max_digits=6, decimal_places=2)
+      price_id = models.CharField(max_length=200)
 
       def __str__(self):
             return f"{self.descripcion} -- ${self.precio}"
@@ -16,6 +17,7 @@ class Aventura(models.Model):
       nombre = models.CharField(max_length=100)
       descripcion = models.TextField(max_length=300)
       precio = models.DecimalField(max_digits=6, decimal_places=2)
+      price_id = models.CharField(max_length=200)
 
       def __str__(self):
             return f"{self.nombre} -- ${self.precio}" 

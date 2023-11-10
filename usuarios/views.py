@@ -6,11 +6,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth import login
 import json
-import cloudinary
+import cloudinary.uploader
 import jwt
 from django.conf import settings
 from datetime import datetime, timedelta
 from decouple import config
+import base64
 
 # Create your views here.
 class UserView(View):
@@ -94,6 +95,7 @@ class UserView(View):
         jasondata = json.loads(request.body)
 
         # ========= Método de autenticación =========
+        
         if len(jasondata) == 2:
 
             try:
@@ -117,6 +119,7 @@ class UserView(View):
                             'username': usuario['username'],
                             'id': usuario['id'],
                             'exp': datetime.utcnow() + timedelta(days=1)
+                            
                         }
 
                         secret_key = config('JWT_SECRET_KEY')
@@ -146,20 +149,54 @@ class UserView(View):
 
         # ====== Método para crear un nuevo usuario =====
         else:
+                                                                                                             
+            try:
+                
+                jasondata = json.loads(request.body)   
+                
+                imagen_base_64 = jasondata['imagen']                         
+                
+                upload_result = cloudinary.uploader.upload(
+                    
+                   imagen_base_64,
+                   folder="proyecto"
+                    
+                )                
+                
+                # Creamos el usuario en la base de datos
+                usuario = Usuarios.objects.create(
+                    name=jasondata['nombre'],
+                    last_name=jasondata['apellidos'],
+                    phone=jasondata['telefono'],
+                    email=jasondata['correo'],
+                    username=jasondata['usuario'],
+                    password=jasondata['contraseña'],
+                    photo=upload_result["url"]
+                )
 
-            Usuarios.objects.create(
-                name=jasondata['name'],
-                last_name=jasondata['last_name'],
-                phone=jasondata['phone'],
-                email=jasondata['email'],
-                username=jasondata['username'],
-                password=jasondata['password'],
-                photo=jasondata['photo']
-            )
+                # Creamos el token para el usuario dado de alta
+                print("Ya se ha creado el usuario")
+                usuario_id = usuario.id
+                username = usuario.username
+                payload = {
 
-            datos = {'message':  'Success'}
+                    'username': username,
+                    'id': usuario_id,
+                    'exp': datetime.utcnow() + timedelta(days=1)
+                            
+               }
 
-        return JsonResponse(datos)
+                secret_key = config('JWT_SECRET_KEY')
+
+                token = jwt.encode(payload, secret_key, algorithm="HS256")
+
+                datos = {'message': "El usuario se ha autenticado correctamente", "token": token}                            
+                return JsonResponse(datos, status = 200)
+                
+            except :
+                print("Hubo un error")
+                datos = {'message':  "Not found"}                        
+                return JsonResponse(datos, status = 400)
 
     def put(self, request, id):
 
