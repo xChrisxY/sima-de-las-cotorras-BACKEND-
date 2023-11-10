@@ -91,7 +91,7 @@ class ReservacionesAventuras(View):
 
             datos = {
                 'message': "Success",
-                "usuarios_con_reservacion": usuarios_con_reservacion
+                "usuarios_con_reservacion pendejos XD": usuarios_con_reservacion
             }
 
         return JsonResponse(datos)

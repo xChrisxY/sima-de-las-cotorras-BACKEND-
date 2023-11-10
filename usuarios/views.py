@@ -101,7 +101,7 @@ class UserView(View):
             try:
 
                 if 'username' in jasondata and 'password' in jasondata:
-
+                    
                     # Traemos la lista de los usuarios
                     usuarios = list(Usuarios.objects.values())
                     user = None
@@ -154,48 +154,75 @@ class UserView(View):
                 
                 jasondata = json.loads(request.body)   
                 
-                imagen_base_64 = jasondata['imagen']                         
+                nombre = jasondata['nombre']
+                apellidos = jasondata['apellidos']
+                telefono = jasondata['telefono']
+                correo = jasondata['correo']
+                edad = jasondata['edadUsuarioActual']
+                usuarionombre = jasondata['usuario']
+                contraseña = jasondata['contraseña']                                              
                 
-                upload_result = cloudinary.uploader.upload(
+                if edad >= 18:                                        
+                                            
+                    # Creamos el usuario en la base de datos
+                    if  'imagen' in jasondata:     
+                                                   
+                        imagen_base_64 = jasondata['imagen']     
+                        upload_result = cloudinary.uploader.upload(                        
+                            imagen_base_64,
+                            folder="proyecto"       
+                        )       
+                        usuario = Usuarios.objects.create(
+                            name = nombre,
+                            last_name = apellidos,
+                            phone = telefono,
+                            email = correo,
+                            username = usuarionombre,
+                            age = edad,
+                            password = contraseña,
+                            photo = upload_result["url"]
+                        )
+                        
+                    else:
+                        
+                        usuario = Usuarios.objects.create(
+                        name = nombre,
+                        last_name = apellidos,
+                        phone = telefono,
+                        email = correo,
+                        username = usuarionombre,
+                        age = edad,
+                        password = contraseña,
+                        photo = ""
+                        )
+
+                    # Creamos el token para el usuario dado de alta
+                    print("Ya se ha creado el usuario")
+                    usuario_id = usuario.id
+                    username = usuario.username
+                    payload = {
+
+                        'username': username,
+                        'id': usuario_id,
+                        'exp': datetime.utcnow() + timedelta(days=1)
+                        
+                    }
+                        
+                    secret_key = config('JWT_SECRET_KEY')
+
+                    token = jwt.encode(payload, secret_key, algorithm="HS256")
+
+                    datos = {'message': "El usuario se ha autenticado correctamente", "token": token}                            
+                    return JsonResponse(datos, status = 200)                                                                
+                
+                else:
                     
-                   imagen_base_64,
-                   folder="proyecto"
-                    
-                )                
-                
-                # Creamos el usuario en la base de datos
-                usuario = Usuarios.objects.create(
-                    name=jasondata['nombre'],
-                    last_name=jasondata['apellidos'],
-                    phone=jasondata['telefono'],
-                    email=jasondata['correo'],
-                    username=jasondata['usuario'],
-                    password=jasondata['contraseña'],
-                    photo=upload_result["url"]
-                )
-
-                # Creamos el token para el usuario dado de alta
-                print("Ya se ha creado el usuario")
-                usuario_id = usuario.id
-                username = usuario.username
-                payload = {
-
-                    'username': username,
-                    'id': usuario_id,
-                    'exp': datetime.utcnow() + timedelta(days=1)
-                            
-               }
-
-                secret_key = config('JWT_SECRET_KEY')
-
-                token = jwt.encode(payload, secret_key, algorithm="HS256")
-
-                datos = {'message': "El usuario se ha autenticado correctamente", "token": token}                            
-                return JsonResponse(datos, status = 200)
-                
+                    datos = {'message': "El usuario debe ser mayor de edad"}                            
+                    return JsonResponse(datos, status = 201)
+                                    
             except :
-                print("Hubo un error")
-                datos = {'message':  "Not found"}                        
+                
+                datos = {'message':  "Hacen falta datos"}                        
                 return JsonResponse(datos, status = 400)
 
     def put(self, request, id):
