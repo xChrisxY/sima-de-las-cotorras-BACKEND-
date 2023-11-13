@@ -222,10 +222,8 @@ class ReservacionesCabañas(View):
         usuario = Usuarios.objects.get(id=jsondata['usuario'])
         cabaña_a_reservar = Cabaña.objects.get(id=jsondata['cabaña'])
         pago = Pago.objects.get(id=pago_id)
-        fecha_de_reservacion = datetime.strptime(
-            jsondata['fecha_de_reservacion'], "%Y-%M-%d").strftime('%Y-%m-%d')
-        fecha_de_salida = datetime.strptime(
-            jsondata['fecha_de_salida'], "%Y-%M-%d").strftime('%Y-%m-%d')
+        fecha_de_reservacion = datetime.strptime(jsondata['fecha_de_reservacion'], "%Y-%M-%d").strftime('%Y-%m-%d')
+        fecha_de_salida = datetime.strptime(jsondata['fecha_de_salida'], "%Y-%M-%d").strftime('%Y-%m-%d')
 
         # Creamos la reservación
         ReservaCabaña.objects.create(
@@ -259,20 +257,21 @@ class CreatecCheckoutSessionView(View):
             aventura = Aventura.objects.get(id = id)
             price_id = aventura.price_id
 
-        YOUR_DOMAIN = "http://127.0.0.1:5173"    
+        YOUR_DOMAIN = "http://localhost:5173"    
         
         try:
             checkout_session = stripe.checkout.Session.create(
                 line_items=[
                     {
                         # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                        'price': price_id,
+                        # price_id
+                        'price': "price_1O3lzsB4lOKww4uzEGAjK0Do",
                         'quantity' : 1                        
                     },
                 ],
-                payment_method_types = ["card"],
+                # payment_method_types = ["card"],
                 mode='payment',
-                success_url=YOUR_DOMAIN + '?success=true',
+                success_url=YOUR_DOMAIN + f'/actividad-usuario/' + '?success=true',
                 cancel_url=YOUR_DOMAIN + '?canceled=true',
             )
 
@@ -281,11 +280,13 @@ class CreatecCheckoutSessionView(View):
             return JsonResponse(data)
 
         except Exception as e:
-
+            
             error_info = {
                 'error_type': 'InvalidRequestError',
                 'error_message': str(e),
             }
+            
+            print(error_info)
 
             return JsonResponse(error_info, safe=False)
 

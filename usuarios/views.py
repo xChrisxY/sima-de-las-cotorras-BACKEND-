@@ -48,8 +48,7 @@ class UserView(View):
 
                     }
 
-                    datos = {'message': 'Success',
-                             'Usuario': informacion_usuario}
+                    datos = {'message': 'Success', 'Usuario': informacion_usuario}
 
                 else:
 
@@ -120,22 +119,19 @@ class UserView(View):
                             'id': usuario['id'],
                             'exp': datetime.utcnow() + timedelta(days=1)
                             
-                        }
+                        }   
 
                         secret_key = config('JWT_SECRET_KEY')
 
-                        token = jwt.encode(
-                            payload, secret_key, algorithm="HS256")
+                        token = jwt.encode(payload, secret_key, algorithm="HS256")
 
-                        datos = {
-                            'message': "El usuario se ha autenticado correctamente", "token": token}
+                        datos = {'message': "El usuario se ha autenticado correctamente", "token": token}
 
                         return JsonResponse(datos, status=200)
 
                     else:
 
-                        datos = {
-                            'message': "El usuario NO se ha autenticado correctamente"}
+                        datos = {'message': "El usuario NO se ha autenticado correctamente"}
 
                         return JsonResponse(datos, status=401)
 
