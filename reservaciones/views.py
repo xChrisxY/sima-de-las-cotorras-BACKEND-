@@ -15,7 +15,6 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # Create your views here.
 
-
 class ReservacionesAventuras(View):
 
     @method_decorator(csrf_exempt)
@@ -74,16 +73,19 @@ class ReservacionesAventuras(View):
                 # Buscamos en las colecciones Usuario, Aventura y Pago los registros correspondientes
                 aventura = Aventura.objects.get(id=aventura_id)
                 usuario = Usuarios.objects.get(id=usuario_id)
-                pago = Pago.objects.get(id=pago_id)
+                pago = Pago.objects.get(id=pago_id)                
 
                 # Construimos el diccionario con la información que nos interesa
                 informacion_de_reservacion = {
 
-                    "nombre_usuario": usuario.name,
-                    "apellido_usuario": usuario.last_name,
-                    "nombre_aventura": aventura.nombre,
+                    "nombre_de_usuario": usuario.name,
+                    "apellido_de_usuario": usuario.last_name,
+                    "email_usuario" : usuario.email,
+                    "telefono_usuario" : usuario.phone,
+                    "nombre_servicio": aventura.nombre,                    
                     "pago": "{:.2f}".format(pago.monto.to_decimal()),
-                    "fecha_de_pago": pago.fecha.strftime('%Y-%m-%d')
+                    "fecha_de_pago": pago.fecha.strftime('%Y-%m-%d'),
+                    "fecha_reservacion" : reservacion['fecha']
 
                 }
 
@@ -91,14 +93,14 @@ class ReservacionesAventuras(View):
 
             datos = {
                 'message': "Success",
-                "usuarios_con_reservacion pendejos XD": usuarios_con_reservacion
+                "usuarios_con_reservacion": usuarios_con_reservacion
             }
 
         return JsonResponse(datos)
 
     def post(self, request):
 
-        # Creando el pago del usuario
+        # === Creando el pago del usuario === #
 
         jasondata = json.loads(request.body)
 
@@ -116,8 +118,7 @@ class ReservacionesAventuras(View):
         aventura_a_reservar = Aventura.objects.get(id=jasondata['aventura'])
         usuario = Usuarios.objects.get(id=jasondata['usuario'])
         pago_del_usuario = Pago.objects.get(id=pago_id)
-        fecha_de_reservacion = datetime.strptime(
-            jasondata['fecha_reservacion'], "%Y-%M-%d").strftime('%Y-%m-%d')
+        fecha_de_reservacion = datetime.strptime(jasondata['fecha_reservacion'], "%Y-%M-%d").strftime('%Y-%m-%d')
 
         ReservaAventura.objects.create(
 
@@ -185,14 +186,18 @@ class ReservacionesCabañas(View):
 
                 usuario = Usuarios.objects.get(id=usuario_id)
                 cabaña = Cabaña.objects.get(id=cabaña_id)
-                pago = Pago.objects.get(id=pago_id)
+                pago = Pago.objects.get(id=pago_id)                                
 
                 informacion_reservacion = {
 
                     "nombre_de_usuario": usuario.name,
                     "apellido_de_usuario": usuario.last_name,
-                    "nombre_cabaña": cabaña.nombre,
-                    "fecha_de_pago": pago.fecha.strftime('%Y-%m-%d')
+                    "email_usuario" : usuario.email,
+                    "telefono_usuario" : usuario.phone,
+                    "nombre_servicio": cabaña.nombre,
+                    "fecha_de_pago": pago.fecha.strftime('%Y-%m-%d'),
+                    "pago" : "{:.2f}".format(pago.monto.to_decimal()),
+                    "fecha_reservacion" : reservacion['fecha_de_reservacion']
 
                 }
 
@@ -206,8 +211,9 @@ class ReservacionesCabañas(View):
 
         # Creando el pago del usuario
         jsondata = json.loads(request.body)
+        print(jsondata)
 
-        # Creamos el pago
+        # === Creamos el pago del usuario === #
         pago = Pago.objects.create(
 
             monto=jsondata['pago']['monto'],
@@ -245,14 +251,18 @@ class CreatecCheckoutSessionView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def post(self, request, id):             
+    def post(self, request, id):   
         
-        # Busquemos para ver si es una cabaña
-        cabaña = Cabaña.objects.get(id = id)
-        price_id = cabaña.price_id
-        print(price_id)
+        jsondata = json.loads(request.body)
         
-        if price_id is None:
+        if (jsondata['servicio'] == 'cabaña'):
+            
+            #Busquemos para ver si es una cabaña
+            cabaña = Cabaña.objects.get(id = id)
+            price_id = cabaña.price_id
+            print(price_id)
+            
+        else:    
             
             aventura = Aventura.objects.get(id = id)
             price_id = aventura.price_id

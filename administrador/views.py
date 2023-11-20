@@ -152,7 +152,8 @@ class GestionarIngresos(View):
                 "id" : ingreso['id'],
                 "categoria" : ingreso['tipo'],
                 "monto" : "{:.2f}".format(ingreso['monto'].to_decimal()),
-                "fecha" : ingreso['fecha'].strftime('%Y-%m-%d')
+                "fecha" : ingreso['fecha'].strftime('%Y-%m-%d'),
+                "descripcion" : ingreso['descripcion']
                                 
             }
             
@@ -171,11 +172,12 @@ class GestionarIngresos(View):
             return resultado_verificacion
         
         # === Vamos a agregar un nuevo ingreso === # 
-        jsondata = json.loads(request.body)      
+        jsondata = json.loads(request.body)   
+        print(jsondata)   
       
         try:
             
-            tipo = jsondata['tipo']
+            tipo = jsondata['categoria']
             descripcion = jsondata['descripcion']
             monto = jsondata['monto']        
             
@@ -217,7 +219,7 @@ class GestionEgreso(View):
         
         lista_de_egresos = []
         
-        egresos = list(Ingreso.objects.values())
+        egresos = list(Egreso.objects.values())
         
         for egreso in egresos:
             
@@ -226,7 +228,8 @@ class GestionEgreso(View):
                 "id" : egreso['id'],
                 "categoria" : egreso['tipo'],
                 "monto" : "{:.2f}".format(egreso['monto'].to_decimal()),
-                "fecha" : egreso['fecha'].strftime('%Y-%m-%d')
+                "fecha" : egreso['fecha'].strftime('%Y-%m-%d'),
+                "descripcion" : egreso['descripcion']
                                 
             }
             
@@ -247,7 +250,7 @@ class GestionEgreso(View):
       
         try:
             
-            tipo = jsondata['tipo']
+            tipo = jsondata['categoria']
             descripcion = jsondata['descripcion']
             monto = jsondata['monto']        
             
