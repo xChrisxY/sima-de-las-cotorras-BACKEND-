@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ReservacionesAventuras, CreatecCheckoutSessionView, AventurasView, CabañasView, ReservacionesCabañas
+from .views import ReservacionesAventuras, CreatecCheckoutSessionView, AventurasView, CabañasView, ReservacionesCabañas, verificarReservacion
 
 urlpatterns = [
     
@@ -10,5 +10,6 @@ urlpatterns = [
       path('reservaciones-aventura/<int:id>/', ReservacionesAventuras.as_view(), name="view_activity_user"),
       path('reservaciones-cabaña/', ReservacionesCabañas.as_view(), name="get_reservations_cabain"),
       path('reservaciones-cabaña/<int:id>', ReservacionesCabañas.as_view(), name="get_reservations_cabain_by_user"),
+      path('verificar-reservacion/<int:id>/<str:fecha>/', verificarReservacion, name="verificar-reservacion")
     
 ]

@@ -371,3 +371,31 @@ class CabañasView(View):
         except Exception as e:
 
             data = {'message': e}
+            
+            return JsonResponse(data)
+        
+def verificarReservacion(request, id, fecha):
+    # Aquí comprobamos si la fecha está disponible
+        
+    reservaciones_cabaña = list(ReservaCabaña.objects.values())    
+    reservado = False
+    
+    for reservacion in reservaciones_cabaña:
+        
+        if reservacion['cabaña_id'] == id:
+                    
+            if (str(reservacion['fecha_de_reservacion']) == fecha):
+                reservado = True
+                break
+    
+    if reservado:        
+                                         
+        data = {'message': 'La cabaña está siendo ocupada en esa fecha'}
+        return JsonResponse(data, status = 201)
+    
+    else:
+        
+        data = {'message': 'La cabaña no está siendo ocupada en esa fecha'}
+        return JsonResponse(data, status = 200)
+    
+
