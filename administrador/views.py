@@ -92,6 +92,8 @@ class AdminView(View):
                     token = jwt.encode(payload, secret_key, algorithm="HS256")
 
                     datos = {'message': "El usuario se ha autenticado correctamente", "token": token}
+                    
+                    print(token)
 
                     return JsonResponse(datos, status=200)                         
 
@@ -219,7 +221,7 @@ class GestionEgreso(View):
         
         lista_de_egresos = []
         
-        egresos = list(Egreso.objects.values())
+        egresos = list(Egreso.objects.values())                
         
         for egreso in egresos:
             
@@ -286,7 +288,7 @@ def verificarSesion(request):
         return JsonResponse({'message': 'Token JWT faltante'}, status=401)
 
     try:
-
+        
         payload = jwt.decode(token, secret_key, algorithms=['HS256'])        
 
         usuario = User.objects.get(id=payload['id'])

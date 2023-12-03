@@ -266,6 +266,7 @@ class CreatecCheckoutSessionView(View):
             
             aventura = Aventura.objects.get(id = id)
             price_id = aventura.price_id
+            print(price_id)
 
         YOUR_DOMAIN = "http://localhost:5173"    
         
@@ -274,12 +275,12 @@ class CreatecCheckoutSessionView(View):
                 line_items=[
                     {
                         # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                        # price_id
-                        'price': "price_1O3lzsB4lOKww4uzEGAjK0Do",
+                        # price_1O3lzsB4lOKww4uzEGAjK0Do
+                        'price': price_id,
                         'quantity' : 1                        
                     },
                 ],
-                # payment_method_types = ["card"],
+                payment_method_types = ["card"],
                 mode='payment',
                 success_url=YOUR_DOMAIN + f'/actividad-usuario/' + '?success=true',
                 cancel_url=YOUR_DOMAIN + '?canceled=true',
