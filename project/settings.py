@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -75,6 +76,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'project.wsgi.application'
+# configuración de la funcuón asincronica
+ASGI_APPLICATION = 'project.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
 
 
 # Database
@@ -140,7 +150,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 # cors authorization
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    "http://localhost:5173", "http://localhost:3000"
 ]
 
 # congifuración de rutas para las imagenes locales
@@ -155,12 +165,12 @@ cloudinary.config(
 )
 
 # === CLAVES EN MODO REAL === #
-STRIPE_PUBLIC_KEY = "pk_live_51O3jBUB4lOKww4uzgpS7EQArnmhZe6tGJHGnQPkTH35XK4IFQ9okZggJ0Us0B9mLCjIbiRcl29vCOI6AwpNPFrLm00jSKVLapW"
-STRIPE_SECRET_KEY = "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"
+#STRIPE_PUBLIC_KEY = "pk_live_51O3jBUB4lOKww4uzgpS7EQArnmhZe6tGJHGnQPkTH35XK4IFQ9okZggJ0Us0B9mLCjIbiRcl29vCOI6AwpNPFrLm00jSKVLapW"
+#STRIPE_SECRET_KEY = "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"
 
 # === MODO DE PRUEBA === #
-#STRIPE_PUBLIC_KEY = "pk_test_51O3jBUB4lOKww4uzMOF61fXd7pHxq0FGsodZBo3ue7fR60XX1JFdUrjcMgS4M0IaQGbFYQXjPAd1xMSdcNbncvyF00xpLm1K2Y"
-#STRIPE_SECRET_KEY = "sk_test_51O3jBUB4lOKww4uzeFgFS8eZjHSxhIGUEk3M2k2AJ3f7jrwJT7ZRMjDB1FeKCwXILCXearLJE3kRFndfhbd57ZnG00AxJjIfQS"
+STRIPE_PUBLIC_KEY = "pk_test_51O3jBUB4lOKww4uzMOF61fXd7pHxq0FGsodZBo3ue7fR60XX1JFdUrjcMgS4M0IaQGbFYQXjPAd1xMSdcNbncvyF00xpLm1K2Y"
+STRIPE_SECRET_KEY = "sk_test_51O3jBUB4lOKww4uzeFgFS8eZjHSxhIGUEk3M2k2AJ3f7jrwJT7ZRMjDB1FeKCwXILCXearLJE3kRFndfhbd57ZnG00AxJjIfQS"
 
 STRIPE_WEBHOOK_SECRET = ""
 

@@ -9,7 +9,7 @@ from datetime import datetime
 import json
 import stripe
 from django.conf import settings
-
+from decouple import config
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -268,15 +268,14 @@ class CreatecCheckoutSessionView(View):
             price_id = aventura.price_id
             print(price_id)
 
-        YOUR_DOMAIN = "http://localhost:5173"    
+        YOUR_DOMAIN = config('HOST_FRONTEND')   
         
         try:
             checkout_session = stripe.checkout.Session.create(
                 line_items=[
                     {
-                        # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                        # price_1O3lzsB4lOKww4uzEGAjK0Do
-                        'price': price_id,
+                        # Provide the exact Price ID (for example, pr_1234) of the product you want to sell                        
+                        'price': 'price_1O3lzsB4lOKww4uzEGAjK0Do',
                         'quantity' : 1                        
                     },
                 ],
