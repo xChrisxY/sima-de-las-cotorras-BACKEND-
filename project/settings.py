@@ -179,9 +179,9 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True  
 # cors authorization
-CORS_ALLOWED_ORIGINS = [
-    "https://django-sima-cotorras2.onrender.com"
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "https://django-sima-cotorras2.onrender.com"
+# ]
 
 # congifuración de rutas para las imagenes locales
 # MEDIA_ROOT = BASE_DIR / 'files'
