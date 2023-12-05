@@ -99,15 +99,27 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+#mongodb+srv://christopheryahirm:<password>@cluster0.lnncvfj.mongodb.net/?retryWrites=true&w=majority
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'CLIENT': {
+#             'host': config('HOST'),
+#             'port': int(config('PORT')),
+#         },
+#         'NAME': 'sima_cotorras',
+#     }
+# }
 
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'CLIENT': {
-            'host': config('HOST'),
-            'port': int(config('PORT')),
-        },
         'NAME': 'sima_cotorras',
+        'ENFORCE_SCHEMA': False,
+        'CLIENT': {
+            'host': 'mongodb+srv://223209:ek1oYJ5iDD48Is7C@clusterproyecto.a05vbix.mongodb.net/?retryWrites=true&w=majority/sima_cotorras',
+        }
     }
 }
 
@@ -168,7 +180,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 # cors authorization
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173", "http://localhost:3000"
+    "https://django-sima-cotorras2.onrender.com"
 ]
 
 # congifuración de rutas para las imagenes locales
